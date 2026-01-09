@@ -1,20 +1,17 @@
-# Usa a imagem oficial do Playwright (já contém Python, Linux e os Navegadores)
+# Usa a imagem oficial
 FROM mcr.microsoft.com/playwright/python:v1.48.0-jammy
 
-# Define diretório de trabalho
 WORKDIR /app
 
-# Copia os arquivos do seu PC para o Container
 COPY requirements.txt .
-COPY api.py .
 
-# Instala as dependências Python
+# --- MUDANÇA 1: De api.py para app.py ---
+COPY app.py .
+
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Garante a instalação do Chromium e suas dependências de sistema
 RUN playwright install chromium
 RUN playwright install-deps
 
-# Comando de inicialização
-# O Render injeta a porta na variável ambiente $PORT
-CMD ["sh", "-c", "uvicorn api:app --host 0.0.0.0 --port $PORT"]
+# --- MUDANÇA 2: De api:app para app:app ---
+# Isso diz ao uvicorn: "Vá no arquivo app.py e procure a variável app"
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port $PORT"]
